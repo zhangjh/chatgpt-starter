@@ -10,7 +10,7 @@ import me.zhangjh.chatgpt.dto.response.TextResponse;
 import me.zhangjh.chatgpt.util.HttpClientUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
-import wiremock.org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;

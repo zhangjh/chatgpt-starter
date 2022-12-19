@@ -2,15 +2,15 @@ package me.zhangjh.chatgpt.util;
 
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
-import wiremock.org.apache.http.HttpResponse;
-import wiremock.org.apache.http.HttpStatus;
-import wiremock.org.apache.http.client.config.RequestConfig;
-import wiremock.org.apache.http.client.methods.HttpPost;
-import wiremock.org.apache.http.entity.ContentType;
-import wiremock.org.apache.http.entity.StringEntity;
-import wiremock.org.apache.http.impl.client.CloseableHttpClient;
-import wiremock.org.apache.http.impl.client.HttpClients;
-import wiremock.org.apache.http.util.EntityUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
