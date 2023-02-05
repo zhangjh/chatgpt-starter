@@ -22,7 +22,10 @@ public class TextRequest {
     /** the propmts to generate completions for */
     private String prompt;
 
-    private int temperature;
+    /** Control the Creativity, it can be 0~1.
+     * It’s not recommended to use the temperature with the Top_p parameter
+     * */
+    private double temperature;
 
     /** the suffix that comes after a completion of inserted text */
     private String suffix;
