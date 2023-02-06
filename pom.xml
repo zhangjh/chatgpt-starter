@@ -7,7 +7,7 @@
     <groupId>me.zhangjh</groupId>
     <artifactId>chatgpt-starter</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
 
     <name>chatgpt-starter</name>
     <description>A springboot starter for chatgpt api.</description>

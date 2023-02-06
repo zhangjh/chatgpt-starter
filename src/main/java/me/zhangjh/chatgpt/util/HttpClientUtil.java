@@ -25,7 +25,7 @@ import java.util.Map;
 public class HttpClientUtil {
     private static final RequestConfig DEFAULT_REQUEST_CONFIG = RequestConfig.custom()
             .setConnectTimeout(5000)
-            .setSocketTimeout(5000)
+            .setSocketTimeout(50000)
             .setConnectionRequestTimeout(5000)
             .build();
 
