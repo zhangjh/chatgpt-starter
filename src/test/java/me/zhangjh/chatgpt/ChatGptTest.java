@@ -26,7 +26,12 @@ public class ChatGptTest {
     @Test
     public void textCompletionTest() {
         TextRequest textRequest = new TextRequest();
-        textRequest.setPrompt("Q:将括号里的词汇翻译一下，如果是中文翻译成英文，如果是英文翻译成中文.（一只小狐狸正在吃葡萄）A:");
+        textRequest.setPrompt("Q:写出java hello world？");
+        textRequest.setTemperature(0.5);
+        textRequest.setMaxTokens(2048);
+        textRequest.setBestOf(1);
+        textRequest.setTopP(1);
+//        textRequest.setPrompt("Q:将括号里的词汇翻译一下，如果是中文翻译成英文，如果是英文翻译成中文.（一只小狐狸正在吃葡萄）A:");
         TextResponse textCompletion = chatGptService.createTextCompletion(textRequest);
         System.out.println(textCompletion);
     }

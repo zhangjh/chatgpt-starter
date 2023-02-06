@@ -51,6 +51,7 @@ public class ChatGptServiceImpl implements ChatGptService {
         } catch (Throwable t) {
             log.error("createCompletion failed, data: {}, t: ",
                     JSONObject.toJSONString(textRequest), t);
+            throw new RuntimeException(t);
         }
         return response;
     }

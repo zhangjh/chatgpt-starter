@@ -64,8 +64,7 @@ public class HttpClientUtil {
         } catch (Throwable t) {
             log.error("sendHttp exception: ", t);
             throw new RuntimeException(t);
-        }
-        finally {
+        } finally {
             if(null != response) {
                 try {
                     EntityUtils.consume(response.getEntity());

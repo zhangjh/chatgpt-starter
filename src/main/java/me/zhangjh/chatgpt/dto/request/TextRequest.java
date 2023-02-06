@@ -4,9 +4,6 @@ import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 import lombok.NonNull;
 
-import java.util.Collections;
-import java.util.List;
-
 /**
  * @author zhangjh
  * @date 3:05 PM 2022/12/15
@@ -32,7 +29,7 @@ public class TextRequest {
 
     /** the maximum num of tokens to generate in the completion */
     @JSONField(name = "max_tokens")
-    private int maxTokens = 100;
+    private int maxTokens = 2048;
 
     @JSONField(name = "top_p")
     private int topP = 1;
@@ -44,11 +41,17 @@ public class TextRequest {
     private int n = 1;
 
     @JSONField(name = "frequency_penalty")
-    private double frequencyPenalty = 0.0;
+    private double frequencyPenalty;
 
     @JSONField(name = "presence_penalty")
 
-    private double presencePenalty = 0.0;
+    private double presencePenalty;
 
-    private List<String> stop = Collections.singletonList("\n");
+    @JSONField(name = "best_of")
+    private int bestOf;
+
+    /**
+     * up to 4 sequences where the API stop generating more text.
+     * */
+    private String stop;
 }
