@@ -48,7 +48,7 @@ public class TextRequest {
     private double presencePenalty;
 
     @JSONField(name = "best_of")
-    private int bestOf;
+    private int bestOf = 1;
 
     /**
      * up to 4 sequences where the API stop generating more text.
