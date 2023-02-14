@@ -68,8 +68,7 @@ public class HttpClientUtil {
                 return JSONObject.parseObject(result);
             } else {
                 JSONObject jo = JSONObject.parseObject(result);
-                jo.put("errorMsg", jo.get("error"));
-                return jo;
+                throw new RuntimeException(jo.getJSONObject("error").toString());
             }
         } catch (Throwable t) {
             log.error("sendHttp exception: ", t);
