@@ -35,7 +35,7 @@ public class HttpClientUtil {
     /**
      * set specific config by user
      * */
-    public void setRequestConfig(RequestConfig config) {
+    public static void setRequestConfig(RequestConfig config) {
         requestConfig = config;
     }
 
