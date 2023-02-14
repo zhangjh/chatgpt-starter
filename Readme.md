@@ -12,7 +12,7 @@
         <dependency>
             <groupId>me.zhangjh</groupId>
             <artifactId>chatgpt-starter</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.5</version>
         </dependency>
     ```
 2. 将生成的apiKey加入配置文件application.properties
