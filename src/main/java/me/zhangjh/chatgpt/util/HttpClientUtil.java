@@ -30,11 +30,20 @@ public class HttpClientUtil {
             .setConnectionRequestTimeout(5000)
             .build();
 
+    private static RequestConfig requestConfig = DEFAULT_REQUEST_CONFIG;
+
+    /**
+     * set specific config by user
+     * */
+    public void setRequestConfig(RequestConfig config) {
+        requestConfig = config;
+    }
+
     /** 10 connections per domain
      *  100 total
      */
     private static final CloseableHttpClient HTTPCLIENT = HttpClients.custom()
-            .setDefaultRequestConfig(DEFAULT_REQUEST_CONFIG)
+            .setDefaultRequestConfig(requestConfig)
             .setMaxConnPerRoute(10)
             .setMaxConnTotal(100)
             .build();
@@ -43,7 +52,7 @@ public class HttpClientUtil {
      * @param url
      * @param body, json format request data
      */
-    public static JSONObject sendHttp(String url, String body, Map<String, String> header) throws Exception {
+    public static JSONObject sendHttp(String url, String body, Map<String, String> header) {
         HttpPost httpPost = new HttpPost(url);
         for (Map.Entry<String, String> entry : header.entrySet()) {
             httpPost.setHeader(entry.getKey(), entry.getValue());
