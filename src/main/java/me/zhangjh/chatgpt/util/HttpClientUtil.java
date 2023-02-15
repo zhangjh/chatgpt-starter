@@ -2,6 +2,7 @@ package me.zhangjh.chatgpt.util;
 
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
+import me.zhangjh.chatgpt.dto.response.BizException;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.config.RequestConfig;
@@ -68,7 +69,7 @@ public class HttpClientUtil {
                 return JSONObject.parseObject(result);
             } else {
                 JSONObject jo = JSONObject.parseObject(result);
-                throw new RuntimeException(jo.getJSONObject("error").toString());
+                throw new BizException(jo.getJSONObject("error").toString());
             }
         } catch (Throwable t) {
             log.error("sendHttp exception: ", t);

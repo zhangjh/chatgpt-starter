@@ -8,9 +8,9 @@ import me.zhangjh.chatgpt.dto.request.TextRequest;
 import me.zhangjh.chatgpt.dto.response.ImageResponse;
 import me.zhangjh.chatgpt.dto.response.TextResponse;
 import me.zhangjh.chatgpt.util.HttpClientUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
@@ -44,7 +44,7 @@ public class ChatGptServiceImpl implements ChatGptService {
 
     @Override
     public TextResponse createTextCompletion(TextRequest textRequest) {
-        TextResponse response = new TextResponse();
+        TextResponse response;
         try {
             JSONObject jsonObject = HttpClientUtil.sendHttp(TEXT_COMPLETION_URL, JSONObject.toJSONString(textRequest), header);
             response = JSONObject.parseObject(jsonObject.toString(), TextResponse.class);
@@ -58,13 +58,14 @@ public class ChatGptServiceImpl implements ChatGptService {
 
     @Override
     public ImageResponse createImageGeneration(ImageRequest imageRequest) {
-        ImageResponse response = new ImageResponse();
+        ImageResponse response;
         try {
             JSONObject jsonObject = HttpClientUtil.sendHttp(IMAGE_GENERATE_URL, JSONObject.toJSONString(imageRequest), header);
             response = JSONObject.parseObject(jsonObject.toString(), ImageResponse.class);
         } catch (Throwable t) {
             log.error("createCompletion failed, data: {}, t: ",
                     JSONObject.toJSONString(imageRequest), t);
+            throw new RuntimeException(t);
         }
         return response;
     }
