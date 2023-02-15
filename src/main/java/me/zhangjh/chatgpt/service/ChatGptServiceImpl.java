@@ -51,7 +51,7 @@ public class ChatGptServiceImpl implements ChatGptService {
         } catch (Throwable t) {
             log.error("createCompletion failed, data: {}, t: ",
                     JSONObject.toJSONString(textRequest), t);
-            throw new RuntimeException(t);
+            throw new RuntimeException(t.getCause());
         }
         return response;
     }
@@ -65,7 +65,7 @@ public class ChatGptServiceImpl implements ChatGptService {
         } catch (Throwable t) {
             log.error("createCompletion failed, data: {}, t: ",
                     JSONObject.toJSONString(imageRequest), t);
-            throw new RuntimeException(t);
+            throw new RuntimeException(t.getCause());
         }
         return response;
     }
