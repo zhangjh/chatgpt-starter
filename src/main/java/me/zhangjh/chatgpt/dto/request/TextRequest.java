@@ -22,33 +22,33 @@ public class TextRequest {
     /** Control the Creativity, it can be 0~1.
      * It’s not recommended to use the temperature with the Top_p parameter
      * */
-    private double temperature;
+    private Double temperature;
 
     /** the suffix that comes after a completion of inserted text */
     private String suffix;
 
     /** the maximum num of tokens to generate in the completion */
     @JSONField(name = "max_tokens")
-    private int maxTokens = 2048;
+    private Integer maxTokens = 2048;
 
     @JSONField(name = "top_p")
-    private int topP = 1;
+    private Integer topP;
 
     /**
      * how many completions to generate for each prompt
      * default to 1
      * */
-    private int n = 1;
+    private Integer n = 1;
 
     @JSONField(name = "frequency_penalty")
-    private double frequencyPenalty;
+    private Double frequencyPenalty;
 
     @JSONField(name = "presence_penalty")
 
-    private double presencePenalty;
+    private Double presencePenalty;
 
     @JSONField(name = "best_of")
-    private int bestOf = 1;
+    private Integer bestOf = 1;
 
     /**
      * up to 4 sequences where the API stop generating more text.
