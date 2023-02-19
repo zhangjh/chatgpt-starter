@@ -31,3 +31,7 @@
    TextResponse createTextCompletion(TextRequest data);
    ImageResponse createImageGeneration(ImageRequest imageRequest);
 ```
+
+
+## 我使用这个starter制作了一个微信小程序：AI文图，欢迎交流~
+![little-program](https://user-images.githubusercontent.com/3371714/219958080-f537f271-3d1b-41e1-86cf-1036d04ab6ba.jpeg)
