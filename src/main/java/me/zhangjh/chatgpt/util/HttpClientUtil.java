@@ -12,9 +12,11 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -53,6 +55,7 @@ public class HttpClientUtil {
      * @param url
      * @param body, json format request data
      */
+    @Deprecated
     public static JSONObject sendHttp(String url, String body, Map<String, String> header) {
         HttpPost httpPost = new HttpPost(url);
         for (Map.Entry<String, String> entry : header.entrySet()) {
@@ -82,5 +85,44 @@ public class HttpClientUtil {
                 }
             }
         }
+    }
+
+    public static JSONObject sendNormally(String url, String body, Map<String, String> headerMap) {
+        return sendHttp(url, body, headerMap);
+    }
+
+    public static SseEmitter sendStream(String url, String body, Map<String, String> headerMap) {
+        SseEmitter emitter = new SseEmitter();
+        HttpPost httpPost = new HttpPost(url);
+        httpPost.setHeader("Content-Type", ContentType.APPLICATION_JSON.getMimeType());
+        for (Map.Entry<String, String> entry : headerMap.entrySet()) {
+            httpPost.setHeader(entry.getKey(), entry.getValue());
+        }
+        StringEntity entity = new StringEntity(body, Charset.defaultCharset());
+        httpPost.setEntity(entity);
+        HttpResponse response = null;
+        try {
+            response = HTTPCLIENT.execute(httpPost);
+            if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                String result = EntityUtils.toString(response.getEntity());
+                List<String> resDataList = JSONObject.parseArray(result, String.class);
+                for (String data : resDataList) {
+                    emitter.send(data);
+                }
+                emitter.complete();
+            } else {
+                throw new RuntimeException("http returned fail, " + response.getStatusLine().getStatusCode());
+            }
+        } catch (Throwable t) {
+            emitter.completeWithError(t);
+        } finally {
+            if(null != response) {
+                try {
+                    EntityUtils.consume(response.getEntity());
+                } catch (IOException ignored) {
+                }
+            }
+        }
+        return emitter;
     }
 }

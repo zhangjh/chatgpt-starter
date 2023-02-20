@@ -11,6 +11,7 @@ import me.zhangjh.chatgpt.util.HttpClientUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
@@ -44,9 +45,12 @@ public class ChatGptServiceImpl implements ChatGptService {
 
     @Override
     public TextResponse createTextCompletion(TextRequest textRequest) {
+        // this interface must set request.stream to false
         TextResponse response;
         try {
-            JSONObject jsonObject = HttpClientUtil.sendHttp(TEXT_COMPLETION_URL, JSONObject.toJSONString(textRequest), header);
+            Assert.isTrue(!textRequest.getStream(), "use createTextCompletionStream to get stream support");
+            JSONObject jsonObject = HttpClientUtil.sendNormally(TEXT_COMPLETION_URL, JSONObject.toJSONString(textRequest),
+                    header);
             response = JSONObject.parseObject(jsonObject.toString(), TextResponse.class);
         } catch (Throwable t) {
             log.error("createCompletion failed, data: {}, t: ",
@@ -54,6 +58,12 @@ public class ChatGptServiceImpl implements ChatGptService {
             throw new RuntimeException(t.getCause());
         }
         return response;
+    }
+
+    @Override
+    public SseEmitter createTextCompletionStream(TextRequest textRequest) {
+        textRequest.setStream(true);
+        return HttpClientUtil.sendStream(TEXT_COMPLETION_URL, JSONObject.toJSONString(textRequest), header);
     }
 
     @Override

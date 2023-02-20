@@ -54,4 +54,9 @@ public class TextRequest {
      * up to 4 sequences where the API stop generating more text.
      * */
     private String stop;
+
+    /**
+     * Whether to stream back partial progress.
+     * */
+    private Boolean stream = false;
 }

@@ -1,9 +1,10 @@
 package me.zhangjh.chatgpt.client;
 
-import me.zhangjh.chatgpt.dto.response.TextResponse;
-import me.zhangjh.chatgpt.dto.request.TextRequest;
 import me.zhangjh.chatgpt.dto.request.ImageRequest;
+import me.zhangjh.chatgpt.dto.request.TextRequest;
 import me.zhangjh.chatgpt.dto.response.ImageResponse;
+import me.zhangjh.chatgpt.dto.response.TextResponse;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 /**
  * @author zhangjh
@@ -18,6 +19,11 @@ public interface ChatGptService {
      * @return chatResponse
      */
     TextResponse createTextCompletion(TextRequest data);
+
+    /**
+     * if textRequest.stream set to true, plz use this interface
+     * */
+    SseEmitter createTextCompletionStream(TextRequest data);
 
     /**
      * image generation
