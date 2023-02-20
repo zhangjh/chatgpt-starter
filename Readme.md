@@ -15,6 +15,8 @@
             <version>${最新版本}</version>
         </dependency>
     ```
+    最新版本查询：https://mvnrepository.com/artifact/me.zhangjh/chatgpt-starter
+    
 2. 将生成的apiKey加入配置文件application.properties
    ```properties
       openai.apikey=xxxxxxxxxxxxxxxxxxx
