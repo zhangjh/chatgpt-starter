@@ -12,9 +12,11 @@
         <dependency>
             <groupId>me.zhangjh</groupId>
             <artifactId>chatgpt-starter</artifactId>
-            <version>1.0.5</version>
+            <version>${最新版本}</version>
         </dependency>
     ```
+    最新版本查询：https://mvnrepository.com/artifact/me.zhangjh/chatgpt-starter
+    
 2. 将生成的apiKey加入配置文件application.properties
    ```properties
       openai.apikey=xxxxxxxxxxxxxxxxxxx
@@ -31,3 +33,7 @@
    TextResponse createTextCompletion(TextRequest data);
    ImageResponse createImageGeneration(ImageRequest imageRequest);
 ```
+
+
+## 我使用这个starter制作了一个微信小程序：AI文图，欢迎交流~
+![little-program](https://user-images.githubusercontent.com/3371714/219958080-f537f271-3d1b-41e1-86cf-1036d04ab6ba.jpeg)
