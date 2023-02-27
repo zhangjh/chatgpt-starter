@@ -26,6 +26,8 @@ import java.util.Map;
 public class ChatGptServiceImpl implements ChatGptService {
 
     @Value("${openai.apikey}")
+    private String configApiKey;
+
     private String apiKey;
 
     private final Map<String, String> header = new HashMap<>();
@@ -36,11 +38,21 @@ public class ChatGptServiceImpl implements ChatGptService {
 
     @PostConstruct
     public void init() {
+        if(StringUtils.isEmpty(configApiKey)) {
+            configApiKey = System.getenv("openai.apikey");
+        }
         if(StringUtils.isEmpty(apiKey)) {
-            apiKey = System.getenv("openai.apikey");
+            apiKey = configApiKey;
         }
         Assert.isTrue(StringUtils.isNotEmpty(apiKey), "openai apiKey not exist");
         header.put("Authorization", "Bearer " + apiKey);
+    }
+
+    /**
+     * allow set apiKey from outside, but you must define this bean yourself
+     */
+    public void setApiKey(String apiKey) {
+        this.apiKey = apiKey;
     }
 
     @Override
