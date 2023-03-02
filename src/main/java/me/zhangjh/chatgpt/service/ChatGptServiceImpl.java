@@ -3,8 +3,10 @@ package me.zhangjh.chatgpt.service;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import me.zhangjh.chatgpt.client.ChatGptService;
+import me.zhangjh.chatgpt.dto.request.ChatRequest;
 import me.zhangjh.chatgpt.dto.request.ImageRequest;
 import me.zhangjh.chatgpt.dto.request.TextRequest;
+import me.zhangjh.chatgpt.dto.response.ChatResponse;
 import me.zhangjh.chatgpt.dto.response.ImageResponse;
 import me.zhangjh.chatgpt.dto.response.TextResponse;
 import me.zhangjh.chatgpt.util.HttpClientUtil;
@@ -35,6 +37,8 @@ public class ChatGptServiceImpl implements ChatGptService {
     private static final String TEXT_COMPLETION_URL = "https://api.openai.com/v1/completions";
 
     private static final String IMAGE_GENERATE_URL = "https://api.openai.com/v1/images/generations";
+
+    private static final String CHAT_COMPLETION_URL = "https://api.openai.com/v1/chat/completions";
 
     @PostConstruct
     public void init() {
@@ -82,7 +86,7 @@ public class ChatGptServiceImpl implements ChatGptService {
     public ImageResponse createImageGeneration(ImageRequest imageRequest) {
         ImageResponse response;
         try {
-            JSONObject jsonObject = HttpClientUtil.sendHttp(IMAGE_GENERATE_URL, JSONObject.toJSONString(imageRequest), header);
+            JSONObject jsonObject = HttpClientUtil.sendNormally(IMAGE_GENERATE_URL, JSONObject.toJSONString(imageRequest), header);
             response = JSONObject.parseObject(jsonObject.toString(), ImageResponse.class);
         } catch (Throwable t) {
             log.error("createCompletion failed, data: {}, t: ",
@@ -90,5 +94,11 @@ public class ChatGptServiceImpl implements ChatGptService {
             throw new RuntimeException(t.getCause());
         }
         return response;
+    }
+
+    @Override
+    public ChatResponse createChatCompletion(ChatRequest request) {
+        JSONObject jsonObject = HttpClientUtil.sendNormally(CHAT_COMPLETION_URL, JSONObject.toJSONString(request), header);
+        return JSONObject.parseObject(jsonObject.toString(), ChatResponse.class);
     }
 }
