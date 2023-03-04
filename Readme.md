@@ -29,9 +29,10 @@
    
    @Autowired
    private ChatGptService chatGptService;
-   // 调用方法即可
+   // 调用方法即可，其他方法不赘述
    TextResponse createTextCompletion(TextRequest data);
    ImageResponse createImageGeneration(ImageRequest imageRequest);
+   
 ```
 
 
