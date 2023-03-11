@@ -108,8 +108,10 @@ public class HttpClientUtil {
                 List<String> resDataList = JSONObject.parseArray(result, String.class);
                 for (String data : resDataList) {
                     emitter.send(data);
+                    if(data.contains("DONE")) {
+                        emitter.complete();
+                    }
                 }
-                emitter.complete();
             } else {
                 throw new RuntimeException("http returned fail, " + response.getStatusLine().getStatusCode());
             }
