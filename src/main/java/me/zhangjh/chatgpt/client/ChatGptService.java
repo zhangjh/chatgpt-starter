@@ -36,4 +36,6 @@ public interface ChatGptService {
 
 
     ChatResponse createChatCompletion(ChatRequest request);
+
+    SseEmitter createChatCompletionStream(ChatRequest request);
 }

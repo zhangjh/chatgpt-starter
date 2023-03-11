@@ -7,7 +7,7 @@
     <groupId>me.zhangjh</groupId>
     <artifactId>chatgpt-starter</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.14</version>
+    <version>1.0.15</version>
 
     <name>chatgpt-starter</name>
     <description>A springboot starter for chatgpt api.</description>
@@ -119,6 +119,11 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
             <version>5.3.24</version>
+        </dependency>
+        <dependency>
+            <groupId>org.python</groupId>
+            <artifactId>jython-standalone</artifactId>
+            <version>2.7.2</version>
         </dependency>
     </dependencies>
 

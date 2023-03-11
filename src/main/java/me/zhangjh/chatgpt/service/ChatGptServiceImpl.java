@@ -101,4 +101,10 @@ public class ChatGptServiceImpl implements ChatGptService {
         JSONObject jsonObject = HttpClientUtil.sendNormally(CHAT_COMPLETION_URL, JSONObject.toJSONString(request), header);
         return JSONObject.parseObject(jsonObject.toString(), ChatResponse.class);
     }
+
+    @Override
+    public SseEmitter createChatCompletionStream(ChatRequest request) {
+        request.setStream(true);
+        return HttpClientUtil.sendStream(CHAT_COMPLETION_URL, JSONObject.toJSONString(request), header);
+    }
 }
