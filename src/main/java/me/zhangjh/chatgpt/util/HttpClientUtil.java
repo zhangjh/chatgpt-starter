@@ -1,11 +1,12 @@
 package me.zhangjh.chatgpt.util;
 
 import com.alibaba.fastjson.JSONObject;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import me.zhangjh.chatgpt.dto.response.BizException;
-import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -14,9 +15,10 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -64,9 +66,7 @@ public class HttpClientUtil {
         httpPost.setHeader("Content-Type", ContentType.APPLICATION_JSON.getMimeType());
         StringEntity entity = new StringEntity(body, Charset.defaultCharset());
         httpPost.setEntity(entity);
-        HttpResponse response = null;
-        try {
-            response = HTTPCLIENT.execute(httpPost);
+        try (CloseableHttpResponse response = HTTPCLIENT.execute(httpPost)) {
             String result = EntityUtils.toString(response.getEntity());
             if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 return JSONObject.parseObject(result);
@@ -77,13 +77,6 @@ public class HttpClientUtil {
         } catch (Throwable t) {
             log.error("sendHttp exception: ", t);
             throw new RuntimeException(t);
-        } finally {
-            if(null != response) {
-                try {
-                    EntityUtils.consume(response.getEntity());
-                } catch (IOException ignored) {
-                }
-            }
         }
     }
 
@@ -91,8 +84,9 @@ public class HttpClientUtil {
         return sendHttp(url, body, headerMap);
     }
 
+    @SneakyThrows
     public static SseEmitter sendStream(String url, String body, Map<String, String> headerMap) {
-        SseEmitter emitter = new SseEmitter();
+        SseEmitter emitter = new SseEmitter(60L);
         HttpPost httpPost = new HttpPost(url);
         httpPost.setHeader("Content-Type", ContentType.APPLICATION_JSON.getMimeType());
         for (Map.Entry<String, String> entry : headerMap.entrySet()) {
@@ -100,31 +94,23 @@ public class HttpClientUtil {
         }
         StringEntity entity = new StringEntity(body, Charset.defaultCharset());
         httpPost.setEntity(entity);
-        HttpResponse response = null;
-        try {
-            response = HTTPCLIENT.execute(httpPost);
+
+        try (CloseableHttpResponse response = HTTPCLIENT.execute(httpPost)) {
             if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                String result = EntityUtils.toString(response.getEntity());
-                List<String> resDataList = JSONObject.parseArray(result, String.class);
-                for (String data : resDataList) {
-                    emitter.send(data);
-                    if(data.contains("DONE")) {
-                        emitter.complete();
+                try (InputStream inputStream = response.getEntity().getContent()) {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        emitter.send(line);
                     }
-                }
-            } else {
-                throw new RuntimeException("http returned fail, " + response.getStatusLine().getStatusCode());
-            }
-        } catch (Throwable t) {
-            emitter.completeWithError(t);
-        } finally {
-            if(null != response) {
-                try {
-                    EntityUtils.consume(response.getEntity());
-                } catch (IOException ignored) {
+                    emitter.complete();
+                } catch (Throwable t) {
+                    emitter.completeWithError(t);
                 }
             }
         }
+        HTTPCLIENT.close();
+
         return emitter;
     }
 }
