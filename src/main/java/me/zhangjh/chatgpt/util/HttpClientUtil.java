@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import me.zhangjh.chatgpt.dto.response.BizException;
+import me.zhangjh.chatgpt.socket.SocketServer;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -85,13 +86,15 @@ public class HttpClientUtil {
     }
 
     @SneakyThrows
-    public static SseEmitter sendStream(String url, String body, Map<String, String> headerMap) {
+    public static SseEmitter sendStream(String url, String body, Map<String, String> headerMap,
+                                        SocketServer socketServer) {
         SseEmitter emitter = new SseEmitter(60L);
         HttpPost httpPost = new HttpPost(url);
         httpPost.setHeader("Content-Type", ContentType.APPLICATION_JSON.getMimeType());
         for (Map.Entry<String, String> entry : headerMap.entrySet()) {
             httpPost.setHeader(entry.getKey(), entry.getValue());
         }
+        String userId = headerMap.get("userId");
         StringEntity entity = new StringEntity(body, Charset.defaultCharset());
         httpPost.setEntity(entity);
 
@@ -102,6 +105,9 @@ public class HttpClientUtil {
                     String line;
                     while ((line = reader.readLine()) != null) {
                         emitter.send(line);
+                        // if web client doesn't support eventSource, such as weixin little program,
+                        // you can use websocket replaced
+                        socketServer.sendMessage(userId, line);
                     }
                     emitter.complete();
                 } catch (Throwable t) {
@@ -109,7 +115,6 @@ public class HttpClientUtil {
                 }
             }
         }
-        HTTPCLIENT.close();
 
         return emitter;
     }

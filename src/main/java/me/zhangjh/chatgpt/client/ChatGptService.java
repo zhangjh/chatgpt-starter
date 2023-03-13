@@ -6,7 +6,10 @@ import me.zhangjh.chatgpt.dto.request.TextRequest;
 import me.zhangjh.chatgpt.dto.response.ChatResponse;
 import me.zhangjh.chatgpt.dto.response.ImageResponse;
 import me.zhangjh.chatgpt.dto.response.TextResponse;
+import me.zhangjh.chatgpt.socket.SocketServer;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.util.Map;
 
 /**
  * @author zhangjh
@@ -14,6 +17,8 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
  * @Description
  */
 public interface ChatGptService {
+
+    void setHeader(Map<String, String> headerMap);
 
     /**
      * text completion
@@ -37,5 +42,8 @@ public interface ChatGptService {
 
     ChatResponse createChatCompletion(ChatRequest request);
 
+    @Deprecated
     SseEmitter createChatCompletionStream(ChatRequest request);
+
+    SseEmitter createChatCompletionStream(ChatRequest request, SocketServer socketServer);
 }

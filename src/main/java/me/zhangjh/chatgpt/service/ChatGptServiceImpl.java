@@ -9,8 +9,10 @@ import me.zhangjh.chatgpt.dto.request.TextRequest;
 import me.zhangjh.chatgpt.dto.response.ChatResponse;
 import me.zhangjh.chatgpt.dto.response.ImageResponse;
 import me.zhangjh.chatgpt.dto.response.TextResponse;
+import me.zhangjh.chatgpt.socket.SocketServer;
 import me.zhangjh.chatgpt.util.HttpClientUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -40,6 +42,9 @@ public class ChatGptServiceImpl implements ChatGptService {
 
     private static final String CHAT_COMPLETION_URL = "https://api.openai.com/v1/chat/completions";
 
+    @Autowired
+    private SocketServer socketServer;
+
     @PostConstruct
     public void init() {
         if(StringUtils.isEmpty(configApiKey)) {
@@ -57,6 +62,11 @@ public class ChatGptServiceImpl implements ChatGptService {
      */
     public void setApiKey(String apiKey) {
         this.apiKey = apiKey;
+    }
+
+    @Override
+    public void setHeader(Map<String, String> headers) {
+        this.header.putAll(headers);
     }
 
     @Override
@@ -79,7 +89,8 @@ public class ChatGptServiceImpl implements ChatGptService {
     @Override
     public SseEmitter createTextCompletionStream(TextRequest textRequest) {
         textRequest.setStream(true);
-        return HttpClientUtil.sendStream(TEXT_COMPLETION_URL, JSONObject.toJSONString(textRequest), header);
+        return HttpClientUtil.sendStream(TEXT_COMPLETION_URL, JSONObject.toJSONString(textRequest),
+                header, socketServer);
     }
 
     @Override
@@ -104,7 +115,13 @@ public class ChatGptServiceImpl implements ChatGptService {
 
     @Override
     public SseEmitter createChatCompletionStream(ChatRequest request) {
+       return this.createChatCompletionStream(request, socketServer);
+    }
+
+    @Override
+    public SseEmitter createChatCompletionStream(ChatRequest request, SocketServer socketServer) {
         request.setStream(true);
-        return HttpClientUtil.sendStream(CHAT_COMPLETION_URL, JSONObject.toJSONString(request), header);
+        return HttpClientUtil.sendStream(CHAT_COMPLETION_URL, JSONObject.toJSONString(request),
+                header, socketServer);
     }
 }
