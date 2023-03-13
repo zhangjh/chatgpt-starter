@@ -104,12 +104,15 @@ public class HttpClientUtil {
                     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
                     String line;
                     while ((line = reader.readLine()) != null) {
-                        emitter.send(line);
-                        // if web client doesn't support eventSource, such as weixin little program,
-                        // you can use websocket replaced
-                        socketServer.sendMessage(userId, line);
+                        if("data: [DONE]".equals(line)) {
+                            emitter.complete();
+                        } else {
+                            emitter.send(line);
+                            // if web client doesn't support eventSource, such as weixin little program,
+                            // you can use websocket replaced
+                            socketServer.sendMessage(userId, line);
+                        }
                     }
-                    emitter.complete();
                 } catch (Throwable t) {
                     emitter.completeWithError(t);
                 }
