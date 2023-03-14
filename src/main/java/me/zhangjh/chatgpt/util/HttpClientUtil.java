@@ -88,7 +88,7 @@ public class HttpClientUtil {
     @SneakyThrows
     public static SseEmitter sendStream(String url, String body, Map<String, String> headerMap,
                                         SocketServer socketServer) {
-        SseEmitter emitter = new SseEmitter(60L);
+        SseEmitter emitter = new SseEmitter();
         HttpPost httpPost = new HttpPost(url);
         httpPost.setHeader("Content-Type", ContentType.APPLICATION_JSON.getMimeType());
         for (Map.Entry<String, String> entry : headerMap.entrySet()) {
@@ -105,16 +105,18 @@ public class HttpClientUtil {
                     while ((line = reader.readLine()) != null) {
                         emitter.send(line);
                         // if web client doesn't support eventSource, such as weixin little program,
-                        // you can use websocket replaced
+                        // you can use websocket replaced、
                         socketServer.sendMessage(headerMap.get("userId"), line, body);
+                        if("data: [DONE]".equals(line)) {
+                            emitter.complete();
+                            break;
+                        }
                     }
-                    emitter.complete();
                 } catch (Throwable t) {
                     emitter.completeWithError(t);
                 }
             }
         }
-
         return emitter;
     }
 }

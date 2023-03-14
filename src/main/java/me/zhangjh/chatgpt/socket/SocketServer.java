@@ -53,8 +53,6 @@ public class SocketServer {
     @OnMessage
     @SneakyThrows
     public void onMessage(String msg, Session session) {
-        log.info("receiving message..");
-        log.info(msg);
     }
 
     /** you must override this method to implements you biz log */
