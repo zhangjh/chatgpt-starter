@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import me.zhangjh.chatgpt.config.HttpSessionWSHelper;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import javax.annotation.PostConstruct;
@@ -24,6 +25,7 @@ import java.util.concurrent.ConcurrentMap;
 @Data
 @ServerEndpoint(value = "/socket/chatStream/{userId}", configurator = HttpSessionWSHelper.class)
 @Slf4j
+@Component
 public class SocketServer {
 
     private String userId;

@@ -6,9 +6,11 @@ import me.zhangjh.chatgpt.dto.Message;
 import me.zhangjh.chatgpt.dto.request.ChatRequest;
 import me.zhangjh.chatgpt.dto.request.ImageRequest;
 import me.zhangjh.chatgpt.dto.request.TextRequest;
+import me.zhangjh.chatgpt.dto.request.TranscriptionRequest;
 import me.zhangjh.chatgpt.dto.response.ChatResponse;
 import me.zhangjh.chatgpt.dto.response.ImageResponse;
 import me.zhangjh.chatgpt.dto.response.TextResponse;
+import me.zhangjh.chatgpt.dto.response.TranscriptionResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,5 +74,13 @@ public class ChatGptTest {
         chatRequest.setMessages(messages);
         ChatResponse chatCompletion = chatGptService.createChatCompletion(chatRequest);
         System.out.println(chatCompletion);
+    }
+
+    @Test
+    public void audioTest() {
+        TranscriptionRequest request = new TranscriptionRequest();
+        request.setFile("/Users/zhangjh/Desktop/test.m4a");
+        TranscriptionResponse transcription = chatGptService.createTranscription(request);
+        System.out.println(transcription);
     }
 }

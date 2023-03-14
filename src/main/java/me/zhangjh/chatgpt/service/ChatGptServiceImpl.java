@@ -6,9 +6,11 @@ import me.zhangjh.chatgpt.client.ChatGptService;
 import me.zhangjh.chatgpt.dto.request.ChatRequest;
 import me.zhangjh.chatgpt.dto.request.ImageRequest;
 import me.zhangjh.chatgpt.dto.request.TextRequest;
+import me.zhangjh.chatgpt.dto.request.TranscriptionRequest;
 import me.zhangjh.chatgpt.dto.response.ChatResponse;
 import me.zhangjh.chatgpt.dto.response.ImageResponse;
 import me.zhangjh.chatgpt.dto.response.TextResponse;
+import me.zhangjh.chatgpt.dto.response.TranscriptionResponse;
 import me.zhangjh.chatgpt.socket.SocketServer;
 import me.zhangjh.chatgpt.util.HttpClientUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -41,6 +43,8 @@ public class ChatGptServiceImpl implements ChatGptService {
     private static final String IMAGE_GENERATE_URL = "https://api.openai.com/v1/images/generations";
 
     private static final String CHAT_COMPLETION_URL = "https://api.openai.com/v1/chat/completions";
+
+    private static final String TRANSCRIPTION_URL = "https://api.openai.com/v1/audio/transcriptions";
 
     @Autowired
     private SocketServer socketServer;
@@ -123,5 +127,11 @@ public class ChatGptServiceImpl implements ChatGptService {
         request.setStream(true);
         return HttpClientUtil.sendStream(CHAT_COMPLETION_URL, JSONObject.toJSONString(request),
                 header, socketServer);
+    }
+
+    @Override
+    public TranscriptionResponse createTranscription(TranscriptionRequest request) {
+        JSONObject response = HttpClientUtil.sendNormally(TRANSCRIPTION_URL, JSONObject.toJSONString(request), header);
+        return JSONObject.parseObject(response.toString(), TranscriptionResponse.class);
     }
 }
