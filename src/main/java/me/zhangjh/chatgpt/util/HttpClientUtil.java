@@ -94,7 +94,6 @@ public class HttpClientUtil {
         for (Map.Entry<String, String> entry : headerMap.entrySet()) {
             httpPost.setHeader(entry.getKey(), entry.getValue());
         }
-        String userId = headerMap.get("userId");
         StringEntity entity = new StringEntity(body, Charset.defaultCharset());
         httpPost.setEntity(entity);
 
@@ -104,15 +103,12 @@ public class HttpClientUtil {
                     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
                     String line;
                     while ((line = reader.readLine()) != null) {
-                        if("data: [DONE]".equals(line)) {
-                            emitter.complete();
-                        } else {
-                            emitter.send(line);
-                            // if web client doesn't support eventSource, such as weixin little program,
-                            // you can use websocket replaced
-                            socketServer.sendMessage(userId, line);
-                        }
+                        emitter.send(line);
+                        // if web client doesn't support eventSource, such as weixin little program,
+                        // you can use websocket replaced
+                        socketServer.sendMessage(headerMap.get("userId"), line, body);
                     }
+                    emitter.complete();
                 } catch (Throwable t) {
                     emitter.completeWithError(t);
                 }

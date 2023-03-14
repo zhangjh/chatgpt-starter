@@ -11,6 +11,7 @@ import javax.annotation.PostConstruct;
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
+import java.io.EOFException;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -56,9 +57,9 @@ public class SocketServer {
         log.info(msg);
     }
 
-    public void sendMessage(String userId, String message) {
+    /** you must override this method to implements you biz log */
+    public void sendMessage(String userId, String message, String bizContent) {
         if(StringUtils.isNotEmpty(message)) {
-            log.info("sendMessage：" + message);
             Assert.isTrue(userMap.size() != 0, "socket not connected");
             Assert.isTrue(StringUtils.isNotEmpty(userId), "userId empty");
             SocketServer server = userMap.get(userId);
@@ -73,6 +74,9 @@ public class SocketServer {
 
     @OnError
     public void onError(Session session, Throwable t) {
-        log.error("chatSocketServer onError:", t);
+        if(t instanceof EOFException) {
+            log.info("socket timeout");
+            this.onClose();
+        }
     }
 }
