@@ -31,8 +31,8 @@ public class ImageRequest {
 
     public void check() {
         List<String> validSizeList = Arrays.asList("256x256", "512x512", "1024x1024");
-        if(validSizeList.stream().anyMatch(item -> this.size.equals(item))) {
-            throw new RuntimeException("invalid image size");
+        if(validSizeList.stream().noneMatch(item -> this.size.equals(item))) {
+            throw new RuntimeException("invalid image size:" + this.size);
         }
     }
 }
