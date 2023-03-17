@@ -18,7 +18,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author zhangjh
@@ -42,7 +44,7 @@ public class ChatGptTest {
         textRequest.setTopP(1);
 //        textRequest.setPrompt("Q:将括号里的词汇翻译一下，如果是中文翻译成英文，如果是英文翻译成中文.（一只小狐狸正在吃葡萄）A:");
 //        TextResponse textCompletion = chatGptService.createTextCompletion(textRequest);
-        TextResponse textCompletion = chatGptService.createTextCompletion(textRequest);
+        TextResponse textCompletion = chatGptService.createTextCompletion(textRequest, null);
 
         System.out.println(textCompletion);
 
@@ -50,8 +52,9 @@ public class ChatGptTest {
 
     @Test
     public void imageGenerateTest() {
-        ImageRequest imageRequest = new ImageRequest("一只小狐狸正在吃葡萄");
-        ImageResponse imageGeneration = chatGptService.createImageGeneration(imageRequest);
+        ImageRequest imageRequest = new ImageRequest();
+        imageRequest.setPrompt("一只小狐狸正在吃葡萄");
+        ImageResponse imageGeneration = chatGptService.createImageGeneration(imageRequest, null);
         System.out.println(imageGeneration);
     }
 
@@ -72,15 +75,17 @@ public class ChatGptTest {
         curMessage.setContent("可以给出代码示例吗，java的？");
         messages.add(curMessage);
         chatRequest.setMessages(messages);
-        ChatResponse chatCompletion = chatGptService.createChatCompletion(chatRequest);
+        Map<String, String> bizParams = new HashMap<>(1);
+        bizParams.put("userId", "1");
+        ChatResponse chatCompletion = chatGptService.createChatCompletion(chatRequest, bizParams);
         System.out.println(chatCompletion);
     }
 
     @Test
     public void audioTest() {
         TranscriptionRequest request = new TranscriptionRequest();
-        request.setFile("/Users/zhangjh/Desktop/test.m4a");
-        TranscriptionResponse transcription = chatGptService.createTranscription(request);
+        request.setFile("/root/test.m4a");
+        TranscriptionResponse transcription = chatGptService.createTranscription(request, null);
         System.out.println(transcription);
     }
 }

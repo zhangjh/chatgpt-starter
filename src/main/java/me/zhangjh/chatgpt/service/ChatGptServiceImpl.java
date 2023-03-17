@@ -1,6 +1,7 @@
 package me.zhangjh.chatgpt.service;
 
 import com.alibaba.fastjson.JSONObject;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import me.zhangjh.chatgpt.client.ChatGptService;
 import me.zhangjh.chatgpt.dto.request.ChatRequest;
@@ -12,16 +13,19 @@ import me.zhangjh.chatgpt.dto.response.ImageResponse;
 import me.zhangjh.chatgpt.dto.response.TextResponse;
 import me.zhangjh.chatgpt.dto.response.TranscriptionResponse;
 import me.zhangjh.chatgpt.socket.SocketServer;
-import me.zhangjh.chatgpt.util.HttpClientUtil;
+import me.zhangjh.chatgpt.util.BizHttpClientUtil;
+import me.zhangjh.share.util.HttpClientUtil;
+import me.zhangjh.share.util.HttpRequest;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * @author zhangjh
@@ -69,69 +73,59 @@ public class ChatGptServiceImpl implements ChatGptService {
     }
 
     @Override
-    public void setHeader(Map<String, String> headers) {
-        this.header.putAll(headers);
-    }
-
-    @Override
-    public TextResponse createTextCompletion(TextRequest textRequest) {
+    public TextResponse createTextCompletion(TextRequest textRequest, Map<String, String> bizParams) {
         // this interface must set request.stream to false
-        TextResponse response;
-        try {
-            Assert.isTrue(!textRequest.getStream(), "use createTextCompletionStream to get stream support");
-            JSONObject jsonObject = HttpClientUtil.sendNormally(TEXT_COMPLETION_URL, JSONObject.toJSONString(textRequest),
-                    header);
-            response = JSONObject.parseObject(jsonObject.toString(), TextResponse.class);
-        } catch (Throwable t) {
-            log.error("createCompletion failed, data: {}, t: ",
-                    JSONObject.toJSONString(textRequest), t);
-            throw new RuntimeException(t.getCause());
-        }
-        return response;
+        textRequest.check();
+
+        HttpRequest httpRequest = new HttpRequest(TEXT_COMPLETION_URL);
+        httpRequest.setReqData(JSONObject.toJSONString(textRequest));
+        httpRequest.setBizHeaderMap(this.header);
+        String response = HttpClientUtil.sendNormally(httpRequest).toString();
+        return JSONObject.parseObject(response, TextResponse.class);
     }
 
     @Override
-    public SseEmitter createTextCompletionStream(TextRequest textRequest) {
-        textRequest.setStream(true);
-        return HttpClientUtil.sendStream(TEXT_COMPLETION_URL, JSONObject.toJSONString(textRequest),
-                header, socketServer);
+    public ImageResponse createImageGeneration(ImageRequest imageRequest, Map<String, String> bizParams) {
+        imageRequest.check();
+        HttpRequest httpRequest = new HttpRequest(IMAGE_GENERATE_URL);
+        httpRequest.setReqData(JSONObject.toJSONString(imageRequest));
+        httpRequest.setBizHeaderMap(this.header);
+        String response = HttpClientUtil.sendNormally(httpRequest).toString();
+        return JSONObject.parseObject(response, ImageResponse.class);
     }
 
     @Override
-    public ImageResponse createImageGeneration(ImageRequest imageRequest) {
-        ImageResponse response;
-        try {
-            JSONObject jsonObject = HttpClientUtil.sendNormally(IMAGE_GENERATE_URL, JSONObject.toJSONString(imageRequest), header);
-            response = JSONObject.parseObject(jsonObject.toString(), ImageResponse.class);
-        } catch (Throwable t) {
-            log.error("createCompletion failed, data: {}, t: ",
-                    JSONObject.toJSONString(imageRequest), t);
-            throw new RuntimeException(t.getCause());
-        }
-        return response;
+    public ChatResponse createChatCompletion(ChatRequest request, Map<String, String> bizParams) {
+        HttpRequest httpRequest = new HttpRequest(CHAT_COMPLETION_URL);
+        httpRequest.setReqData(JSONObject.toJSONString(request));
+        httpRequest.setBizHeaderMap(this.header);
+        String response = HttpClientUtil.sendNormally(httpRequest).toString();
+        return JSONObject.parseObject(response, ChatResponse.class);
     }
 
     @Override
-    public ChatResponse createChatCompletion(ChatRequest request) {
-        JSONObject jsonObject = HttpClientUtil.sendNormally(CHAT_COMPLETION_URL, JSONObject.toJSONString(request), header);
-        return JSONObject.parseObject(jsonObject.toString(), ChatResponse.class);
-    }
-
-    @Override
-    public SseEmitter createChatCompletionStream(ChatRequest request) {
-       return this.createChatCompletionStream(request, socketServer);
-    }
-
-    @Override
-    public SseEmitter createChatCompletionStream(ChatRequest request, SocketServer socketServer) {
+    @SneakyThrows
+    public void createChatCompletionStream(ChatRequest request, Map<String, String> bizParams,
+                                                 SocketServer socketServer, Function<String,
+            Void> bizCb) {
         request.setStream(true);
-        return HttpClientUtil.sendStream(CHAT_COMPLETION_URL, JSONObject.toJSONString(request),
-                header, socketServer);
+        Assert.isTrue(MapUtils.isNotEmpty(bizParams) && StringUtils.isNotEmpty(bizParams.get("userId")),
+                "userId为空");
+        this.header.putAll(bizParams);
+        HttpRequest httpRequest = new HttpRequest(CHAT_COMPLETION_URL);
+        httpRequest.setReqData(JSONObject.toJSONString(request));
+        httpRequest.setBizHeaderMap(this.header);
+
+        String fullMsg = BizHttpClientUtil.sendStream(httpRequest, socketServer);
+        bizCb.apply(fullMsg);
     }
 
     @Override
-    public TranscriptionResponse createTranscription(TranscriptionRequest request) {
-        JSONObject response = HttpClientUtil.sendNormally(TRANSCRIPTION_URL, JSONObject.toJSONString(request), header);
-        return JSONObject.parseObject(response.toString(), TranscriptionResponse.class);
+    public TranscriptionResponse createTranscription(TranscriptionRequest request, Map<String, String> bizParams) {
+        HttpRequest httpRequest = new HttpRequest(TRANSCRIPTION_URL);
+        httpRequest.setReqData(JSONObject.toJSONString(request));
+        httpRequest.setBizHeaderMap(this.header);
+        String response = HttpClientUtil.sendNormally(httpRequest).toString();
+        return JSONObject.parseObject(response, TranscriptionResponse.class);
     }
 }

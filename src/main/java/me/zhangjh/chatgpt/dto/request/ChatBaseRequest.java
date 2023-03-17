@@ -1,8 +1,8 @@
 package me.zhangjh.chatgpt.dto.request;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import lombok.NonNull;
 
 /**
  * @author zhangjh451@midea.com
@@ -10,10 +10,10 @@ import lombok.NonNull;
  * @Description
  */
 @Data
-public class BaseRequest {
+public class ChatBaseRequest {
 
     /** ID of the model to use */
-    @NonNull
+    @NotNull
     private String model = "text-davinci-003";
 
     /** Control the Creativity, it can be 0~1.

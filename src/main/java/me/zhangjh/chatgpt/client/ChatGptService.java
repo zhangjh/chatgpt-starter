@@ -9,9 +9,9 @@ import me.zhangjh.chatgpt.dto.response.ImageResponse;
 import me.zhangjh.chatgpt.dto.response.TextResponse;
 import me.zhangjh.chatgpt.dto.response.TranscriptionResponse;
 import me.zhangjh.chatgpt.socket.SocketServer;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * @author zhangjh
@@ -20,34 +20,28 @@ import java.util.Map;
  */
 public interface ChatGptService {
 
-    void setHeader(Map<String, String> headerMap);
-
     /**
      * text completion
      * @param data
      * @return chatResponse
      */
-    TextResponse createTextCompletion(TextRequest data);
-
-    /**
-     * if textRequest.stream set to true, plz use this interface
-     * */
-    SseEmitter createTextCompletionStream(TextRequest data);
+    TextResponse createTextCompletion(TextRequest textRequest, Map<String, String> bizParams);
 
     /**
      * image generation
      * @param imageRequest
      * @return imageResponse
      */
-    ImageResponse createImageGeneration(ImageRequest imageRequest);
+    ImageResponse createImageGeneration(ImageRequest imageRequest, Map<String, String> bizParams);
 
 
-    ChatResponse createChatCompletion(ChatRequest request);
+    ChatResponse createChatCompletion(ChatRequest request, Map<String, String> bizParams);
 
-    @Deprecated
-    SseEmitter createChatCompletionStream(ChatRequest request);
+    /**
+     * for weixin only, transfer SseEmitter to WebSocket
+     * */
+    void createChatCompletionStream(ChatRequest request, Map<String, String> bizParams, SocketServer socketServer,
+                                          Function<String, Void> bizCb);
 
-    SseEmitter createChatCompletionStream(ChatRequest request, SocketServer socketServer);
-
-    TranscriptionResponse createTranscription(TranscriptionRequest request);
+    TranscriptionResponse createTranscription(TranscriptionRequest request, Map<String, String> bizParams);
 }

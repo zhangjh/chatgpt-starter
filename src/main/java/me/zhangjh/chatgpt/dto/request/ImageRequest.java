@@ -1,8 +1,11 @@
 package me.zhangjh.chatgpt.dto.request;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import lombok.NonNull;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author zhangjh
@@ -13,7 +16,7 @@ import lombok.NonNull;
 public class ImageRequest {
 
     /** a text description of the desired images */
-    @NonNull
+    @NotNull
     private String prompt;
 
     /** a num >=1 && <= 10, images to generate*/
@@ -25,4 +28,11 @@ public class ImageRequest {
     /** must be url or b64_json, default url */
     @JSONField(name = "response_format")
     private String responseFormat = "url";
+
+    public void check() {
+        List<String> validSizeList = Arrays.asList("256x256", "512x512", "1024x1024");
+        if(validSizeList.stream().anyMatch(item -> this.size.equals(item))) {
+            throw new RuntimeException("invalid image size");
+        }
+    }
 }

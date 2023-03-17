@@ -1,5 +1,6 @@
 package me.zhangjh.chatgpt.dto.request;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
@@ -15,8 +16,10 @@ public class TranscriptionRequest {
     /**
      * An optional text to guide the model's style or continue a previous audio segment. The prompt should match the audio language.
      * */
+    @NotNull
     private String model = "whisper-1";
 
+    @NotNull
     private String prompt;
 
     private Integer temperature = 0;
