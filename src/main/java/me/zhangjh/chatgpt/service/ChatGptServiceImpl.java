@@ -1,7 +1,6 @@
 package me.zhangjh.chatgpt.service;
 
 import com.alibaba.fastjson.JSONObject;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import me.zhangjh.chatgpt.client.ChatGptService;
 import me.zhangjh.chatgpt.dto.request.ChatRequest;
@@ -104,7 +103,6 @@ public class ChatGptServiceImpl implements ChatGptService {
     }
 
     @Override
-    @SneakyThrows
     public void createChatCompletionStream(ChatRequest request, Map<String, String> bizParams,
                                                  SocketServer socketServer, Function<String,
             Void> bizCb) {
@@ -116,8 +114,7 @@ public class ChatGptServiceImpl implements ChatGptService {
         httpRequest.setReqData(JSONObject.toJSONString(request));
         httpRequest.setBizHeaderMap(this.header);
 
-        String fullMsg = BizHttpClientUtil.sendStream(httpRequest, socketServer);
-        bizCb.apply(fullMsg);
+        BizHttpClientUtil.sendStream(httpRequest, socketServer, bizCb);
     }
 
     @Override

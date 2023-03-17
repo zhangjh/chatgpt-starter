@@ -2,11 +2,7 @@ package me.zhangjh.chatgpt.socket;
 
 import com.alibaba.fastjson.JSONObject;
 import lombok.Data;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import me.zhangjh.chatgpt.dto.response.ChatResponse;
-import me.zhangjh.chatgpt.dto.response.ChatRet;
-import me.zhangjh.chatgpt.dto.response.ChatStreamRet;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -16,7 +12,6 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import java.io.EOFException;
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -57,7 +52,6 @@ public class SocketServer {
     }
 
     @OnMessage
-    @SneakyThrows
     public void onMessage(String msg, Session session) {
         // in this project, client will not send message to server
     }
@@ -65,34 +59,15 @@ public class SocketServer {
     /** you must override this method to implements you biz log
      *  message removed the beginning 'data:'
      * */
-    public String sendMessage(String userId, String message) {
+    public void sendMessage(String userId, String message) {
         log.info("userId: {}, message: {}", userId, message);
         if(StringUtils.isNotEmpty(message)) {
             Assert.isTrue(userMap.size() != 0, "socket not connected");
             Assert.isTrue(StringUtils.isNotEmpty(userId), "userId empty");
 
-            if(FINISH_FLAG.equals(message)) {
-                sendMsgInternal(userId, message);
-                return message;
-            }
             log.info("message: {}", message);
-            ChatResponse chatResponse = JSONObject.parseObject(message, ChatResponse.class);
-            List<ChatRet> choices = chatResponse.getChoices();
-            StringBuilder partialMsg = new StringBuilder();
-            for (ChatRet choice : choices) {
-                List<ChatStreamRet> delta = choice.getDelta();
-                for (ChatStreamRet ret : delta) {
-                    if(ret != null && StringUtils.isNotEmpty(ret.getContent())) {
-                        log.info("sendMsg, userId: {}, msg: {}", userId,
-                                ret.getContent());
-                        sendMsgInternal(userId, ret.getContent());
-                        partialMsg.append(ret.getContent());
-                    }
-                }
-            }
-            return partialMsg.toString();
+            sendMsgInternal(userId, message);
         }
-        return "";
     }
 
     private void sendMsgInternal(String userId, String message) {
