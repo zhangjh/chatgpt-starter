@@ -12,7 +12,6 @@ import okhttp3.Response;
 import okhttp3.sse.EventSource;
 import okhttp3.sse.EventSourceListener;
 import okhttp3.sse.EventSources;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,7 +19,6 @@ import org.springframework.util.Assert;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -41,7 +39,9 @@ public class BizHttpClientUtil extends HttpClientUtil {
             @Override
             public void onEvent(@NotNull EventSource eventSource, @Nullable String id, @Nullable String type, @NotNull String data) {
                 log.info("id: {}, type: {}, data: {}", id, type, data);
-                handleResponse(httpRequest, data, socketServer, bizCb);
+                // 异步结果回来后要从eventSource里取userId，因为不确定返回事件里的结果是哪次请求的
+                String userId = eventSource.request().header("userId");
+                handleResponse(userId, data, socketServer, bizCb);
             }
 
             @Override
@@ -52,16 +52,14 @@ public class BizHttpClientUtil extends HttpClientUtil {
         factory.newEventSource(buildRequest(httpRequest), eventSourceListener);
     }
 
-    private static void handleResponse(HttpRequest httpRequest, String data,
+    private static void handleResponse(String userId, String data,
                                          SocketServer socketServer, Function<String, Void> bizCb) {
-        Map<String, String> bizHeaderMap = httpRequest.getBizHeaderMap();
-        Assert.isTrue(MapUtils.isNotEmpty(bizHeaderMap) && StringUtils.isNotEmpty(bizHeaderMap.get("userId"))
-                , "userId为空");
-        String userId = bizHeaderMap.get("userId");
+        Assert.isTrue(StringUtils.isNotEmpty(userId), "userId为空");
         // if stream is true, send socket msg here
         // res format: data: {xxx}
         if(StringUtils.isNotEmpty(data)) {
             if(data.equals(FINISH_FLAG)) {
+                socketServer.sendMessage(userId, data);
                 String fullMsg = msgMap.get(userId).toString();
                 bizCb.apply(fullMsg);
                 // 清空缓存
