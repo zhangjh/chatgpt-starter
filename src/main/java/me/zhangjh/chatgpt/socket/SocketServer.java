@@ -10,6 +10,7 @@ import org.springframework.util.Assert;
 import javax.annotation.PostConstruct;
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
+import javax.websocket.server.ServerEndpoint;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,6 +24,7 @@ import java.util.concurrent.ConcurrentMap;
 @Data
 @Slf4j
 @Component
+@ServerEndpoint("/socket/chatStream/{userId}")
 public class SocketServer {
 
     private String userId;
@@ -48,6 +50,16 @@ public class SocketServer {
     @OnClose
     public void onClose() {
         log.info("onClose..");
+        // should notice clients to update connect status
+        // when multiple clients connected
+        SocketServer server = userMap.get(this.userId);
+        if(server != null) {
+            try {
+                server.getSession().close();
+            } catch (IOException e) {
+                log.error("socketServer close exception:", e);
+            }
+        }
         userMap.remove(this.userId);
     }
 
