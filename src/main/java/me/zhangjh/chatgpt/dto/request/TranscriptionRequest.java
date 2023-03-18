@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
- * @author zhangjh451@midea.com
+ * @author njhxzhangjihong@126.com
  * @date 6:01 PM 2023/3/14
  * @Description
  */

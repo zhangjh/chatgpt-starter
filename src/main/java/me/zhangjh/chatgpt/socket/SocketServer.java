@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * @author zhangjh451@midea.com
+ * @author njhxzhangjihong@126.com
  * @date 3:03 PM 2023/3/13
  * @Description configure me as spring bean，you can override me to custom your sendMessage method
  */
