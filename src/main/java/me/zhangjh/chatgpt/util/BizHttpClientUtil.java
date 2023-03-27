@@ -2,13 +2,14 @@ package me.zhangjh.chatgpt.util;
 
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
+import me.zhangjh.chatgpt.dto.request.TranscriptionRequest;
 import me.zhangjh.chatgpt.dto.response.ChatResponse;
 import me.zhangjh.chatgpt.dto.response.ChatRet;
 import me.zhangjh.chatgpt.dto.response.ChatStreamRet;
 import me.zhangjh.chatgpt.socket.SocketServer;
 import me.zhangjh.share.util.HttpClientUtil;
 import me.zhangjh.share.util.HttpRequest;
-import okhttp3.Response;
+import okhttp3.*;
 import okhttp3.sse.EventSource;
 import okhttp3.sse.EventSourceListener;
 import okhttp3.sse.EventSources;
@@ -17,8 +18,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.util.Assert;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 
 /**
@@ -50,6 +54,29 @@ public class BizHttpClientUtil extends HttpClientUtil {
             }
         };
         factory.newEventSource(buildRequest(httpRequest), eventSourceListener);
+    }
+
+    public static Object sendFileMultiPart(HttpRequest request) {
+        TranscriptionRequest transcriptionRequest = JSONObject.parseObject(request.getReqData(), TranscriptionRequest.class);
+
+        MediaType mediaType = MediaType.parse("multipart/form-data");
+        RequestBody body = new MultipartBody.Builder().setType(MultipartBody.FORM)
+                .addFormDataPart("file", transcriptionRequest.getFile(),
+                        RequestBody.create(new File(transcriptionRequest.getFile()), mediaType))
+                .addFormDataPart("model", transcriptionRequest.getModel())
+                .build();
+        Request httpRequest = new Request.Builder()
+                .url(request.getUrl())
+                .method("POST", body)
+                .addHeader("Authorization", request.getBizHeaderMap().get("Authorization"))
+                .addHeader("Content-Type", "multipart/form-data")
+                .build();
+        try (Response response = OK_HTTP_CLIENT.newCall(httpRequest).execute()){
+            return handleResponse(Objects.requireNonNull(response.body()));
+        } catch (IOException e) {
+            log.error("sendFileMultiPart exception, ", e);
+            throw new RuntimeException(e);
+        }
     }
 
     private static void handleResponse(String userId, String data,

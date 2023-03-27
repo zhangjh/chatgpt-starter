@@ -122,7 +122,7 @@ public class ChatGptServiceImpl implements ChatGptService {
         HttpRequest httpRequest = new HttpRequest(TRANSCRIPTION_URL);
         httpRequest.setReqData(JSONObject.toJSONString(request));
         httpRequest.setBizHeaderMap(this.header);
-        String response = HttpClientUtil.sendNormally(httpRequest).toString();
+        String response = BizHttpClientUtil.sendFileMultiPart(httpRequest).toString();
         return JSONObject.parseObject(response, TranscriptionResponse.class);
     }
 }
