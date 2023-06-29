@@ -45,7 +45,8 @@ public class ChatGptServiceImpl implements ChatGptService {
 
     private static final String IMAGE_GENERATE_URL = "https://api.openai.com/v1/images/generations";
 
-    private static final String CHAT_COMPLETION_URL = "https://api.openai.com/v1/chat/completions";
+    @Value("${openai.chat.url:https://api.openai.com/v1/chat/completions}")
+    private String chatUrl;
 
     private static final String TRANSCRIPTION_URL = "https://api.openai.com/v1/audio/transcriptions";
 
@@ -61,7 +62,13 @@ public class ChatGptServiceImpl implements ChatGptService {
             apiKey = configApiKey;
         }
         Assert.isTrue(StringUtils.isNotEmpty(apiKey), "openai apiKey not exist");
-        header.put("Authorization", "Bearer " + apiKey);
+        // openAi
+        if(apiKey.startsWith("sk-")) {
+            header.put("Authorization", "Bearer " + apiKey);
+        } else {
+            // azure
+            header.put("api-key", apiKey);
+        }
     }
 
     /**
@@ -95,7 +102,7 @@ public class ChatGptServiceImpl implements ChatGptService {
 
     @Override
     public ChatResponse createChatCompletion(ChatRequest request, Map<String, String> bizParams) {
-        HttpRequest httpRequest = new HttpRequest(CHAT_COMPLETION_URL);
+        HttpRequest httpRequest = new HttpRequest(chatUrl);
         httpRequest.setReqData(JSONObject.toJSONString(request));
         httpRequest.setBizHeaderMap(this.header);
         String response = HttpClientUtil.sendNormally(httpRequest).toString();
@@ -110,7 +117,7 @@ public class ChatGptServiceImpl implements ChatGptService {
         Assert.isTrue(MapUtils.isNotEmpty(bizParams) && StringUtils.isNotEmpty(bizParams.get("userId")),
                 "userId为空");
         this.header.putAll(bizParams);
-        HttpRequest httpRequest = new HttpRequest(CHAT_COMPLETION_URL);
+        HttpRequest httpRequest = new HttpRequest(chatUrl);
         httpRequest.setReqData(JSONObject.toJSONString(request));
         httpRequest.setBizHeaderMap(this.header);
 
